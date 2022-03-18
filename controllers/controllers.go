@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"go-rest-api/database"
 	"go-rest-api/models"
 	"net/http"
 	"strconv"
@@ -19,10 +20,12 @@ func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(filter(models.Products, ids))
 		return
 	}
-	json.NewEncoder(w).Encode(models.Products)
+	var products []models.Product
+	database.DB.Find(&products)
+	json.NewEncoder(w).Encode(products)
 }
 
-func SaveProduct(w http.ResponseWriter, r *http.Request){
+func SaveProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 	var newProduct models.Product
 	error := json.NewDecoder(r.Body).Decode(&newProduct)
@@ -30,7 +33,7 @@ func SaveProduct(w http.ResponseWriter, r *http.Request){
 		panic(error)
 	}
 	models.Products = append(models.Products, newProduct)
-	fmt.Println(models.Products);
+	fmt.Println(models.Products)
 }
 
 func filter(ss []models.Product, ids []string) []models.Product {

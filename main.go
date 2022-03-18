@@ -1,14 +1,13 @@
 package main
 
 import (
-	"go-rest-api/models"
+	"go-rest-api/database"
 	"go-rest-api/routes"
+	"log"
 )
 
 func main() {
-	models.Products = []models.Product{
-		{Id: 1, Name: "iphone x", EditorialName: "iphone X 128gb"},
-		{Id: 2, Name: "samsung ", EditorialName: "iphone X 128gb"},
-	}
+	database.Connect()
+	log.Println("project running")
 	routes.HandleRequest()
 }
