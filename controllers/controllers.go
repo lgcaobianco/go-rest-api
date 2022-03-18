@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-rest-api/database"
 	"go-rest-api/models"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -14,6 +15,7 @@ func Hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllProducts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("content-type", "application/json")
 	var ids = r.URL.Query()["id"]
 	fmt.Println("value from productID ")
 	if len(ids) > 0 {
@@ -26,14 +28,21 @@ func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 }
 
 func SaveProduct(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(201)
 	var newProduct models.Product
 	error := json.NewDecoder(r.Body).Decode(&newProduct)
 	if error != nil {
-		panic(error)
+		w.WriteHeader(400)
+		fmt.Println("error decoding json")
 	}
-	models.Products = append(models.Products, newProduct)
-	fmt.Println(models.Products)
+	result := database.DB.Create(&newProduct)
+	if result.Error != nil {
+		log.Println("we found a problem")
+		log.Println(result.Error)
+		w.WriteHeader(500)
+	}
+
+	w.WriteHeader(201)
+	json.NewEncoder(w).Encode(result)
 }
 
 func filter(ss []models.Product, ids []string) []models.Product {
